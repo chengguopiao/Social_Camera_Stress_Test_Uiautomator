@@ -1,77 +1,92 @@
-#!/usr/bin/env python
+#!/usr/bin/python
+# coding:utf-8
+
 from devicewrapper.android import device as d
 import unittest
 import string
-import os
-import commands
 import time
-import random
 import util
+import random
 
-"""
-@author:Xiao Bowen
-@Note:Feature test for intel camera2.2
-"""
-CAMERAMODE_LIST = ('single','smile','hdr','video','burstfast','burstslow','perfectshot','panorama')
-A  = util.Adb()
-SM = util.SetMode()
-TB = util.TouchButton()
+ad = util.Adb()
+tb = util.TouchButton()
+sm = util.SetMode() 
 
-SD=['4',None]
-HD=['5','false']
-HSD=['5','true']
-HFD=['6','false']
-HSFD=['6','true']
+#Written by XuGuanjun
+
+PACKAGE_NAME  = 'com.intel.camera22'
+ACTIVITY_NAME = PACKAGE_NAME + '/.Camera'
+
+#All setting info of camera could be cat in the folder
+PATH_PREF_XML  = '/data/data/com.intel.camera22/shared_prefs/'
+
+#FDFR / GEO / BACK&FROUNT xml file in com.intelcamera22_preferences_0.xml
+PATH_0XML      = PATH_PREF_XML + 'com.intel.camera22_preferences_0.xml'
+
+#PICSIZE / EXPROSURE / TIMER / WHITEBALANCE / ISO / HITS / VIDEOSIZE in com.intel.camera22_preferences_0_0.xml
+PATH_0_0XML    = PATH_PREF_XML + 'com.intel.camera22_preferences_0_0.xml'
+
+#####                                    #####
+#### Below is the specific settings' info ####
+###                                        ###
+##                                          ##
+#                                            #
+
+#FD/FR states check point
+FDFR_STATE      = PATH_0XML   + ' | grep pref_fdfr_key'
+
+#Geo state check point
+GEO_STATE       = PATH_0XML   + ' | grep pref_camera_geo_location_key'
+
+#Pic size state check point
+PICSIZE_STATE   = PATH_0_0XML + ' | grep pref_camera_picture_size_key'
+
+#Exposure state check point 
+EXPOSURE_STATE  = PATH_0_0XML + ' | grep pref_camera_exposure_key'
+
+#Timer state check point
+TIMER_STATE     = PATH_0_0XML + ' | grep pref_camera_delay_shooting_key'
+
+#Video Size state check point
+VIDEOSIZE_STATE = PATH_0_0XML + ' | grep pref_video_quality_key'
+
+#White balance state check point
+WBALANCE_STATE  = PATH_0_0XML + ' | grep pref_camera_whitebalance_key'
+
+#Flash state check point
+FLASH_STATE     = PATH_0_0XML + ' | grep pref_camera_video_flashmode_key'
+
+#SCENE state check point
+SCENE_STATE     = PATH_0_0XML + ' | grep pref_camera_scenemode_key'
+
+SD                  =['4','false']
+HD                  =['5','false']
+HSD                 =['5','true']
+HFD                 =['6','false']
+HSFD                =['6','true']
+CAMERAMODE_LIST     = ['single','smile','hdr','video','burstfast','burstslow','perfectshot','panorama']
+FLASH_MODE          =['on','off','auto']
+SCENE_MODE          =['barcode','night-portrait','portrait','landscape','night','sports','auto']
+EXPOSURE_MODE       = ['-6','-3','0','3','6']
+PICTURESIZE_MODE    =['WideScreen','StandardScreen']
+VIDEOSIZE_MODE      = [SD,HD,HSD,HFD,HSFD]
 
 
-FLASH_MODE=['on','off','auto']
-
-SCENE_MODE ={'barcode':1,
-            'night-portrait':2,
-            'portrait':3,
-            'landscape':4,
-            'night':5,
-            'sports':6,
-            'auto':7}
-EXPOSURE_MODE = {'-6':1,
-                '-3':2,
-                '0',3,
-                '3',4,
-                '6',5
-                }
-PICTURESIZE_MODE   ={'WideScreen':1,
-                    'StandardScreen':2
-                    }
-
-VIDEOSIZE_MODE     ={SD:1,
-                    HD:2,
-                    HSD:3,
-                    HFD:4,
-                    HSFD:5
-                    }
-
-class MyTest(unittest.TestCase):
+class CameraTest(unittest.TestCase):
     def setUp(self):
-        # rm DCIM folder and refresh from adb shell
-        A.cmd('rm','/sdcard/DCIM/100ANDRO')
-        A.cmd('refresh','/sdcard/DCIM/100ANDRO')
-        # Launch camera (Default is single mode)
-        A.cmd('launch','com.intel.camera22/.Camera')
-        time.sleep(2)
-        try:
-            assert d(text = 'OK').wait.exists(timeout = 3000)
-            d(text = 'OK').click.wait()
-        except:
-            pass
-        assert d(resourceId = 'com.intel.camera22:id/shutter_button'),'Launch camera failed!!'
-        super(MyTest,self).setUp()
+        super(CameraTest,self).setUp()
+        #Delete all image/video files captured before
+        ad.cmd('rm','/sdcard/DCIM/*')
+        #Refresh media after delete files
+        ad.cmd('refresh','/sdcard/DCIM/*')
+        #Launch social camera
+        self._launchCamera()
 
     def tearDown(self):
-        #4.Exit  activity
+        #ad.cmd('pm','com.intel.camera22') #Force reset the camera settings to default
         self._pressBack(4)
-        # A.cmd('pm','com.intel.camera22')
-        super(MyTest,self).tearDown()
-
+        super(CameraTest,self).tearDown()
+    
     # Test case 1
     def testSwitchMode50Times(self):
         """
@@ -96,7 +111,7 @@ class MyTest(unittest.TestCase):
         """
         for i in range(50):
             self._pressBack(4)
-            A.cmd('launch','com.intel.camera22/.Camera')
+            ad.cmd('launch','com.intel.camera22/.Camera')
             assert d(resourceId = 'com.intel.camera22:id/shutter_button'),'Launch camera failed!!'
 
     # Test case 3
@@ -136,8 +151,8 @@ class MyTest(unittest.TestCase):
         3.Exit  activity
         """
         for i in range(100):
-            scene_mode = random.choice(SCENE_MODE.keys())
-            SM.setCameraSetting('single',5,SCENE_MODE[scene_mode])
+            scene_mode = random.choice(SCENE_MODE)
+            SM.setCameraSetting('single',5,SCENE_MODE.index(scene_mode)+1)
             self._confirmSettingMode('scenemode',scene_mode)
 
     # Test case 6
@@ -150,8 +165,8 @@ class MyTest(unittest.TestCase):
         3.Exit  activity
         """
         for i in range(100):
-            exposure_mode = random.choice(EXPOSURE_MODE.keys())
-            SM.setCameraSetting('single',5,EXPOSURE_MODE[exposure_mode])
+            exposure_mode = random.choice(EXPOSURE_MODE)
+            SM.setCameraSetting('single',5,EXPOSURE_MODE.index(exposure_mode)+1)
             self._confirmSettingMode('exposure',exposure_mode)
 
     # Test case 7
@@ -164,11 +179,11 @@ class MyTest(unittest.TestCase):
         3.Exit  activity
         """
         for i in range(100):
-            size_mode = random.choice(PICTURESIZE_MODE.keys())
-            SM.setCameraSetting('single',4,PICTURESIZE_MODE[size_mode])
+            size_mode = random.choice(PICTURESIZE_MODE)
+            SM.setCameraSetting('single',4,PICTURESIZE_MODE.index(size_mode)+1)
             self._confirmSettingMode('picturesize',size_mode)
 
-    # Test case 8
+    #Test case 8
     def testChangeVideoSizeMode100Times(self):
         """
         Summary:testChangevideosizemode100times: Change video size mode 100 times
@@ -177,26 +192,279 @@ class MyTest(unittest.TestCase):
         2.Change video size 100 times
         3.Exit  activity
         """
-        SM.switchcamera('video')      
+        SM.switchcamera('video')
         for i in range(100):
-            size_mode = random.choice(VIDEOSIZE_MODE.keys())
-            SM.setCameraSetting('video',3,VIDEOSIZE_MODE[size_mode])
+            size_mode = random.choice(VIDEOSIZE_MODE)
+            SM.setCameraSetting('video',3,VIDEOSIZE_MODE.index(size_mode)+1)
             self._confirmSettingMode('video_quality',size_mode[0])
-            result2=A.cmd('cat','/data/data/com.intel.camera22/shared_prefs/com.intel.camera22_preferences_0.xml | grep enable-hightspeed')
+            result2=ad.cmd('cat','/data/data/com.intel.camera22/shared_prefs/com.intel.camera22_preferences_0_0.xml | grep enable-hightspeed')
             if result2.find(size_mode[1]) == -1:
                 self.fail('set video mode failed!')
 
+    #case 9
+    def testEnterGalleryFromGalleryPreviewThumbnail100times(self):
+        '''
+        Summary: enter gallery from gallery preview thumbnail 100times
+        Steps  : 1.Launch single capture activity
+                 2.enter gallery from gallery preview thumbnail 100times
+                 3.Exit  activity
+        '''
+        for i in range(100):
+            try:
+                #If there is thumbnail on the camera preview, it is no need to take new image
+                assert d(resourceId = 'com.intel.camera22:id/thumbnail').wait.exists(timeout = 5000)
+            except:
+                tb.takePicture('single')
+                time.sleep(5) #Wait a few seconds that thumbnail could display on the preview
+            finally:
+                #Click on the thumbnail
+                d.click(resourceId = 'com.intel.camera22:id/thumbnail').click.wait()
+                #Check if gallery launch suc
+                assert d(resourceId = 'com.intel.android.gallery3d:id/cardpop').wait.exists(timeout = 3000)
 
+    #case 10
+    def testCaptureSingleImage500timesBackCamera(self):
+        '''
+        Summary: Capture single image 500 times
+        Steps  : 1.Launch single capture activity
+                 2.Capture single image 500 times
+                 3.Exit  activity
+        '''
+        for i in range(500):
+            self._captureAndCheckPicCount('single',2)
+
+    #case 11
+    def testCaptureSingleImage500timesFrontCamera(self):
+        '''
+        Summary: Capture single image 500 times
+        Steps  : 1.Launch single capture activity
+                 2.Capture single image 500 times
+                 3.Exit  activity
+        '''
+        tb.switchBackOrFrontCamera('front') #Force set camera to front
+        for i in range(500):
+            self._captureAndCheckPicCount('single',2)
+
+    #case 12
+    def testCaptureHdrImage500timesBackCamera(self):
+        '''
+        Summary: Capture hdr image 500 times
+        Steps  : 1.Launch hdr capture activity
+                 2.Capture hdr image 500 times
+                 3.Exit  activity
+        '''
+        sm.switchcamera('hdr')
+        for i in range(500):
+            self._captureAndCheckPicCount('single',2)
+
+    #case 13
+    def testCaptureSmileImage500timesBackCamera(self):
+        '''
+        Summary: Capture smile image 500 times
+        Steps  : 1.Launch smile capture activity
+                 2.Capture smile image 500 times
+                 3.Exit  activity
+        '''
+        sm.switchcamera('smile')
+        for i in range(500):
+            self._captureAndCheckPicCount('smile',2)
+
+    #case 14
+    def testRecord1080PVideo500times(self):
+        '''
+        Summary: test Record 1080P video 500 times
+        Steps  : 1.Launch video capture activity
+                 2.Record 1080P video 500 times
+                 3.Exit  activity
+        '''
+        sm.switchcamera('video')
+        for i in range(500):
+            self._takeVideoAndCheckCount(30,2)
+
+    #case 15
+    def testRecordVideo500timesFrontCamera(self):
+        '''
+        Summary: test Record video 500 times
+        Steps  : 1.Launch video capture activity
+                 2.Change to front camera
+                 3.Record video 500 times
+                 4.Exit  activity
+        '''
+        sm.switchcamera('video')
+        tb.switchBackOrFrontCamera('front')
+        for i in range(500):
+            self._takeVideoAndCheckCount(30,2)
+
+    # Test case 18
+    def testCapturePerectshotImage200TimesBackCamera(self):
+        """
+        Summary:testCaptureperfectshotimage200times: Capture perfect shot image 200 times
+        Steps:  1.Launch perfectshot capture activity
+                2.Capture perfectshot image 200 times
+                3.Exit  activity
+        """
+    #step 1
+        sm.switchcamera('perfectshot')
+        d.expect('perfectshot.png')
+    #step 2 
+        for i in range(200):
+            self._checkCapturedPic()
+            time.sleep(2)
+
+
+    # Test case 19
+    def testCapturePanoramaImage200TimesBackCamera(self):
+        """
+        Summary:testCapturepanoramaimage200times: Capture panorama image 200 times
+        Steps:  1.Launch panorama capture activity
+                2.Capture panorama image 200 times
+                3.Exit  activity
+        """
+    #step 1
+        sm.switchcamera('panorama')
+        d.expect('panorama.png')
+    #step 2
+        for i in range(200):
+            self._PanoramaCapturePic()
+            time.sleep(1)
+
+
+
+    # Test case 20
+    def testCaptureSingleImage8M500TimesBackCamera(self):
+        """
+        capture single image 500 times
+        8M pixels, back camera
+
+        """
+    #step 1    
+        sm.setCameraSetting('single',4,2)
+        assert bool(ad.cmd('cat',PATH + PICTURE_SIZE_KEY).find('StandardScreen')+1)
+    #step 2
+        tb.switchBackOrFrontCamera('back')
+    #step 3
+        for i in range(500):
+            self._checkCapturedPic()
+            time.sleep(1)
+  
+
+
+    # Test case 21
+    def testcaseCaptureSmileImage8M500TimesBackCamera(self):
+        """
+        Capture Smile Image 8M 500 times back camera
+        8M pixels, back camera
+        """
+    #step 1
+        sm.switchcamera('smile')
+        sm.setCameraSetting('smile',2,2)
+        d.expect('smile.png')
+    #step 2
+        tb.switchBackOrFrontCamera('back')
+    #step 3
+        for i in range(500):
+            self._checkCapturedPic()
+            time.sleep(1)
+
+
+    # Test Case 22
+    def testcaseRecord720PVideo500Times(self):
+
+        """
+        Record 720P Video 500times
+        Video size 720P
+        """
+    #step 1
+        sm.switchcamera('video')
+        sm.setCameraSetting('video',3,2)
+        d.expect('video.png')
+    #step 2 
+        for i in range (500):
+            tb.takeVideo(5)
+            time.sleep(1)   
+
+
+    # Test Case 23
+    def testcaseRecord480PVideo500Times(self):
+        """
+        test case Record 480 Pvideo 500 times
+        Video size 480P
+
+        """
+    #step 1
+        sm.switchcamera('video')
+        sm.setCameraSetting('video',3,1)
+        d.expect('video.png')
+    #step 2 
+        for i in range (500):
+            tb.takeVideo(5)
+            time.sleep(1)   
+        sm.setCameraSetting('video',3,2)
+
+    # Test Case 24
+    def testcaseBurstImage8M200Times(self):
+        """
+        test case Burst Image 200 times
+        8M pixels, back camera
+        """
+
+    #step 1
+        sm.setCameraSetting('burstfast',2,2)
+        d.expect('burst.png') 
+        assert bool(ad.cmd('cat',PATH + PICTURE_SIZE_KEY).find('StandardScreen')+1)
+    #step 2 
+        tb.switchBackOrFrontCamera('back')
+    #step 3
+        for i in range(200):
+            self._checkCapturedPic()
+            time.sleep(1)
     def _confirmSettingMode(self,sub_mode,option):
         if sub_mode == 'location':
-            result = A.cmd('cat','/data/data/com.intel.camera22/shared_prefs/com.intel.camera22_preferences_0.xml | grep '+ sub_mode)
+            result = ad.cmd('cat','/data/data/com.intel.camera22/shared_prefs/com.intel.camera22_preferences_0.xml | grep '+ sub_mode)
             if result.find(option) == -1:
                 self.fail('set camera setting ' + sub_mode + ' to ' + option + ' failed')
         else:
-            result = A.cmd('cat','/data/data/com.intel.camera22/shared_prefs/com.intel.camera22_preferences_0_0.xml | grep ' + sub_mode)
+            result = ad.cmd('cat','/data/data/com.intel.camera22/shared_prefs/com.intel.camera22_preferences_0_0.xml | grep ' + sub_mode)
             if result.find(option) == -1:
                 self.fail('set camera setting ' + sub_mode + ' to ' + option + ' failed')
 
-    def _pressBack(self,touchtimes):
-        for i in range(1,touchtimes+1):
+    def _captureAndCheckPicCount(self,capturemode,delaytime):
+        beforeNo = ad.cmd('ls','/sdcard/DCIM/100ANDRO') #Get count before capturing
+        tb.takePicture(capturemode)
+        time.sleep(delaytime) #Sleep a few seconds for file saving
+        afterNo = ad.cmd('ls','/sdcard/DCIM/100ANDRO') #Get count after taking picture
+        if beforeNo != afterNo - 1: #If the count does not raise up after capturing, case failed
+            self.fail('Taking picture failed!')
+
+    def _launchCamera(self):
+        d.start_activity(component = ACTIVITY_NAME)
+        #When it is the first time to launch camera there will be a dialog to ask user 'remember location', so need to check
+        if d(text = 'OK').wait.exists(timeout = 2000):
+            d(text = 'OK').click.wait()
+        assert d(resourceId = 'com.intel.camera22:id/mode_button').wait.exists(timeout = 3000), 'Launch camera failed in 3s'
+
+    def _pressBack(self,touchtimes=1):
+        for i in range(touchtimes):
             d.press('back')
+
+    def _takeVideoAndCheckCount(self,recordtime,delaytime,capturetimes=0):
+        beforeNo = ad.cmd('ls','/sdcard/DCIM/100ANDRO') #Get count before capturing
+        tb.takeVideo(recordtime,capturetimes)
+        time.sleep(delaytime) #Sleep a few seconds for file saving
+        afterNo = ad.cmd('ls','/sdcard/DCIM/100ANDRO') #Get count after taking picture
+        if beforeNo != afterNo - capturetimes - 1: #If the count does not raise up after capturing, case failed
+            self.fail('Taking picture failed!')
+
+    def _checkCapturedPic(self):
+        beforeNo = ad.cmd('ls','/sdcard/DCIM/100ANDRO') #Get count before capturing
+        tb.takePicture('single')
+        afterNo = ad.cmd('ls','/sdcard/DCIM/100ANDRO') #Get count after taking picture
+        if beforeNo == afterNo: #If the count does not raise up after capturing, case failed
+            self.fail('Taking picture failed!')
+
+    def _PanoramaCapturePic(self):
+        beforeNo = ad.cmd('ls','/sdcard/DCIM/100ANDRO') #Get count before capturing
+        tb.takePicture('smile')
+        afterNo = ad.cmd('ls','/sdcard/DCIM/100ANDRO') #Get count after taking picture
+        if beforeNo == afterNo: #If the count does not raise up after capturing, case failed
+            self.fail('Taking picture failed!')
