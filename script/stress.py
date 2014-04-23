@@ -71,6 +71,10 @@ EXPOSURE_MODE       = ['-6','-3','0','3','6']
 PICTURESIZE_MODE    =['WideScreen','StandardScreen']
 VIDEOSIZE_MODE      = [SD,HD,HSD,HFD,HSFD]
 
+# PATH
+PATH ='/data/data/com.intel.camera22/shared_prefs/com.intel.camera22_preferences_0_0.xml '
+# key
+PICTURE_SIZE_KEY ='| grep pref_camera_picture_size_key'
 
 class CameraTest(unittest.TestCase):
     def setUp(self):
@@ -418,6 +422,7 @@ class CameraTest(unittest.TestCase):
         for i in range(200):
             self._checkCapturedPic()
             time.sleep(1)
+
     def _confirmSettingMode(self,sub_mode,option):
         if sub_mode == 'location':
             result = ad.cmd('cat','/data/data/com.intel.camera22/shared_prefs/com.intel.camera22_preferences_0.xml | grep '+ sub_mode)
