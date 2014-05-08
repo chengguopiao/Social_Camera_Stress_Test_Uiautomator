@@ -8,9 +8,9 @@ import time
 import util
 import random
 
-ad = util.Adb()
-tb = util.TouchButton()
-sm = util.SetMode() 
+AD = util.Adb()
+TB = util.TouchButton()
+SM = util.SetMode() 
 
 #Written by XuGuanjun
 
