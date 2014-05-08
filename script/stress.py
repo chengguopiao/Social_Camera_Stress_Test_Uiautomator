@@ -8,9 +8,9 @@ import time
 import util
 import random
 
-AD = util.Adb()
-TB = util.TouchButton()
-SM = util.SetMode() 
+ad = util.Adb()
+tb = util.TouchButton()
+sm = util.SetMode() 
 
 #Written by XuGuanjun
 
@@ -80,14 +80,14 @@ class CameraTest(unittest.TestCase):
     def setUp(self):
         super(CameraTest,self).setUp()
         #Delete all image/video files captured before
-        AD.cmd('rm','/sdcard/DCIM/*')
+        ad.cmd('rm','/sdcard/DCIM/*')
         #Refresh media after delete files
-        AD.cmd('refresh','/sdcard/DCIM/*')
+        ad.cmd('refresh','/sdcard/DCIM/*')
         #Launch social camera
         self._launchCamera()
 
     def tearDown(self):
-        #AD.cmd('pm','com.intel.camera22') #Force reset the camera settings to default
+        #ad.cmd('pm','com.intel.camera22') #Force reset the camera settings to default
         self._pressBack(4)
         super(CameraTest,self).tearDown()
     
@@ -102,7 +102,7 @@ class CameraTest(unittest.TestCase):
         """
         for i in range(50):
             mode = random.choice(CAMERAMODE_LIST)
-            SM.switchcamera(mode)
+            sm.switchcamera(mode)
 
         # Test case 2
     def testLaunchCamera50Times(self):
@@ -115,7 +115,7 @@ class CameraTest(unittest.TestCase):
         """
         for i in range(50):
             self._pressBack(4)
-            AD.cmd('launch','com.intel.camera22/.Camera')
+            ad.cmd('launch','com.intel.camera22/.Camera')
             assert d(resourceId = 'com.intel.camera22:id/shutter_button'),'Launch camera failed!!'
 
     # Test case 3
@@ -128,8 +128,8 @@ class CameraTest(unittest.TestCase):
         3.Exit  activity
         """
         for i in range(30):
-            TB.switchBackOrFrontCamera('front')
-            TB.switchBackOrFrontCamera('back')
+            tb.switchBackOrFrontCamera('front')
+            tb.switchBackOrFrontCamera('back')
 
     # Test case 4
     def testChangeFlashMode100Times(self):
@@ -142,7 +142,7 @@ class CameraTest(unittest.TestCase):
         """
         for i in range(100):
             flash_mode = random.choice(FLASH_MODE)
-            SM.setCameraSetting('single','flash',flash_mode)
+            sm.setCameraSetting('single','flash',flash_mode)
             self._confirmSettingMode('flash',flash_mode)
 
     # Test case 5
@@ -156,7 +156,7 @@ class CameraTest(unittest.TestCase):
         """
         for i in range(100):
             scene_mode = random.choice(SCENE_MODE)
-            SM.setCameraSetting('single',5,SCENE_MODE.index(scene_mode)+1)
+            sm.setCameraSetting('single',5,SCENE_MODE.index(scene_mode)+1)
             self._confirmSettingMode('scenemode',scene_mode)
 
     # Test case 6
@@ -170,7 +170,7 @@ class CameraTest(unittest.TestCase):
         """
         for i in range(100):
             exposure_mode = random.choice(EXPOSURE_MODE)
-            SM.setCameraSetting('single',5,EXPOSURE_MODE.index(exposure_mode)+1)
+            sm.setCameraSetting('single',5,EXPOSURE_MODE.index(exposure_mode)+1)
             self._confirmSettingMode('exposure',exposure_mode)
 
     # Test case 7
@@ -184,7 +184,7 @@ class CameraTest(unittest.TestCase):
         """
         for i in range(100):
             size_mode = random.choice(PICTURESIZE_MODE)
-            SM.setCameraSetting('single',4,PICTURESIZE_MODE.index(size_mode)+1)
+            sm.setCameraSetting('single',4,PICTURESIZE_MODE.index(size_mode)+1)
             self._confirmSettingMode('picturesize',size_mode)
 
     #Test case 8
@@ -196,12 +196,12 @@ class CameraTest(unittest.TestCase):
         2.Change video size 100 times
         3.Exit  activity
         """
-        SM.switchcamera('video')
+        sm.switchcamera('video')
         for i in range(100):
             size_mode = random.choice(VIDEOSIZE_MODE)
-            SM.setCameraSetting('video',3,VIDEOSIZE_MODE.index(size_mode)+1)
+            sm.setCameraSetting('video',3,VIDEOSIZE_MODE.index(size_mode)+1)
             self._confirmSettingMode('video_quality',size_mode[0])
-            result2=AD.cmd('cat','/data/data/com.intel.camera22/shared_prefs/com.intel.camera22_preferences_0_0.xml | grep enable-hightspeed')
+            result2=ad.cmd('cat','/data/data/com.intel.camera22/shared_prefs/com.intel.camera22_preferences_0_0.xml | grep enable-hightspeed')
             if result2.find(size_mode[1]) == -1:
                 self.fail('set video mode failed!')
 
@@ -343,7 +343,7 @@ class CameraTest(unittest.TestCase):
         """
     #step 1    
         sm.setCameraSetting('single',4,2)
-        assert bool(AD.cmd('cat',PATH + PICTURE_SIZE_KEY).find('StandardScreen')+1)
+        assert bool(ad.cmd('cat',PATH + PICTURE_SIZE_KEY).find('StandardScreen')+1)
     #step 2
         tb.switchBackOrFrontCamera('back')
     #step 3
@@ -416,7 +416,7 @@ class CameraTest(unittest.TestCase):
         sm.switchcamera('burstfast')
         sm.setCameraSetting('burstfast',2,2)
         d.expect('burst.png') 
-        assert bool(AD.cmd('cat',PATH + PICTURE_SIZE_KEY).find('StandardScreen')+1)
+        assert bool(ad.cmd('cat',PATH + PICTURE_SIZE_KEY).find('StandardScreen')+1)
     #step 2 
         tb.switchBackOrFrontCamera('back')
     #step 3
@@ -426,19 +426,19 @@ class CameraTest(unittest.TestCase):
 
     def _confirmSettingMode(self,sub_mode,option):
         if sub_mode == 'location':
-            result = AD.cmd('cat','/data/data/com.intel.camera22/shared_prefs/com.intel.camera22_preferences_0.xml | grep '+ sub_mode)
+            result = ad.cmd('cat','/data/data/com.intel.camera22/shared_prefs/com.intel.camera22_preferences_0.xml | grep '+ sub_mode)
             if result.find(option) == -1:
                 self.fail('set camera setting ' + sub_mode + ' to ' + option + ' failed')
         else:
-            result = AD.cmd('cat','/data/data/com.intel.camera22/shared_prefs/com.intel.camera22_preferences_0_0.xml | grep ' + sub_mode)
+            result = ad.cmd('cat','/data/data/com.intel.camera22/shared_prefs/com.intel.camera22_preferences_0_0.xml | grep ' + sub_mode)
             if result.find(option) == -1:
                 self.fail('set camera setting ' + sub_mode + ' to ' + option + ' failed')
 
     def _captureAndCheckPicCount(self,capturemode,delaytime):
-        beforeNo = AD.cmd('ls','/sdcard/DCIM/100ANDRO') #Get count before capturing
+        beforeNo = ad.cmd('ls','/sdcard/DCIM/100ANDRO') #Get count before capturing
         tb.takePicture(capturemode)
         time.sleep(delaytime) #Sleep a few seconds for file saving
-        afterNo = AD.cmd('ls','/sdcard/DCIM/100ANDRO') #Get count after taking picture
+        afterNo = ad.cmd('ls','/sdcard/DCIM/100ANDRO') #Get count after taking picture
         if beforeNo != afterNo - 1: #If the count does not raise up after capturing, case failed
             self.fail('Taking picture failed!')
 
@@ -454,23 +454,23 @@ class CameraTest(unittest.TestCase):
             d.press('back')
 
     def _takeVideoAndCheckCount(self,recordtime,delaytime,capturetimes=0):
-        beforeNo = AD.cmd('ls','/sdcard/DCIM/100ANDRO') #Get count before capturing
+        beforeNo = ad.cmd('ls','/sdcard/DCIM/100ANDRO') #Get count before capturing
         tb.takeVideo(recordtime,capturetimes)
         time.sleep(delaytime) #Sleep a few seconds for file saving
-        afterNo = AD.cmd('ls','/sdcard/DCIM/100ANDRO') #Get count after taking picture
+        afterNo = ad.cmd('ls','/sdcard/DCIM/100ANDRO') #Get count after taking picture
         if beforeNo != afterNo - capturetimes - 1: #If the count does not raise up after capturing, case failed
             self.fail('Taking picture failed!')
 
     def _checkCapturedPic(self):
-        beforeNo = AD.cmd('ls','/sdcard/DCIM/100ANDRO') #Get count before capturing
+        beforeNo = ad.cmd('ls','/sdcard/DCIM/100ANDRO') #Get count before capturing
         tb.takePicture('single')
-        afterNo = AD.cmd('ls','/sdcard/DCIM/100ANDRO') #Get count after taking picture
+        afterNo = ad.cmd('ls','/sdcard/DCIM/100ANDRO') #Get count after taking picture
         if beforeNo == afterNo: #If the count does not raise up after capturing, case failed
             self.fail('Taking picture failed!')
 
     def _PanoramaCapturePic(self):
-        beforeNo = AD.cmd('ls','/sdcard/DCIM/100ANDRO') #Get count before capturing
+        beforeNo = ad.cmd('ls','/sdcard/DCIM/100ANDRO') #Get count before capturing
         tb.takePicture('smile')
-        afterNo = AD.cmd('ls','/sdcard/DCIM/100ANDRO') #Get count after taking picture
+        afterNo = ad.cmd('ls','/sdcard/DCIM/100ANDRO') #Get count after taking picture
         if beforeNo == afterNo: #If the count does not raise up after capturing, case failed
             self.fail('Taking picture failed!')
