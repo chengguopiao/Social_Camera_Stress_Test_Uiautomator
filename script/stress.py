@@ -116,7 +116,7 @@ class CameraTest(unittest.TestCase):
         for i in range(50):
             self._pressBack(4)
             ad.cmd('launch','com.intel.camera22/.Camera')
-            assert d(resourceId = 'com.intel.camera22:id/shutter_button'),'Launch camera failed!!'
+            assert d(resourceId = 'com.intel.camera22:id/shutter_button').wait.exists(timeout=1000),'Launch camera failed!!'
 
     # Test case 3
     def testSwitchBackFrontCameraInSingleMode30Times(self):
@@ -158,6 +158,7 @@ class CameraTest(unittest.TestCase):
             scene_mode = random.choice(SCENE_MODE)
             sm.setCameraSetting('single',5,SCENE_MODE.index(scene_mode)+1)
             self._confirmSettingMode('scenemode',scene_mode)
+        sm.setCameraSetting('single',5,7)
 
     # Test case 6
     def testChangeExposureMode100Times(self):
@@ -170,8 +171,9 @@ class CameraTest(unittest.TestCase):
         """
         for i in range(100):
             exposure_mode = random.choice(EXPOSURE_MODE)
-            sm.setCameraSetting('single',5,EXPOSURE_MODE.index(exposure_mode)+1)
+            sm.setCameraSetting('single',6,EXPOSURE_MODE.index(exposure_mode)+1)
             self._confirmSettingMode('exposure',exposure_mode)
+
 
     # Test case 7
     def testChangePictureSizeMode100Times(self):
@@ -185,7 +187,8 @@ class CameraTest(unittest.TestCase):
         for i in range(100):
             size_mode = random.choice(PICTURESIZE_MODE)
             sm.setCameraSetting('single',4,PICTURESIZE_MODE.index(size_mode)+1)
-            self._confirmSettingMode('picturesize',size_mode)
+            print size_mode
+            self._confirmSettingMode('picture_size',size_mode)
 
     #Test case 8
     def testChangeVideoSizeMode100Times(self):
@@ -213,18 +216,17 @@ class CameraTest(unittest.TestCase):
                  2.enter gallery from gallery preview thumbnail 100times
                  3.Exit  activity
         '''
-        for i in range(100):
-            try:
-                #If there is thumbnail on the camera preview, it is no need to take new image
-                assert d(resourceId = 'com.intel.camera22:id/thumbnail').wait.exists(timeout = 5000)
-            except:
-                tb.takePicture('single')
-                time.sleep(5) #Wait a few seconds that thumbnail could display on the preview
-            finally:
-                #Click on the thumbnail
-                d.click(resourceId = 'com.intel.camera22:id/thumbnail').click.wait()
-                #Check if gallery launch suc
-                assert d(resourceId = 'com.intel.android.gallery3d:id/cardpop').wait.exists(timeout = 3000)
+        tb.takePicture('single')
+        time.sleep(100)
+        for i in range(5):
+            d(resourceId = 'com.intel.camera22:id/thumbnail').click.wait()
+            d.click(300,300)
+            time.sleep(2)
+            assert d(resourceId = 'com.intel.android.gallery3d:id/cardpop').wait.exists(timeout = 3000)
+            d.press('back')
+            time.sleep(1)
+
+
 
     #case 10
     def testCaptureSingleImage500timesBackCamera(self):
@@ -248,7 +250,7 @@ class CameraTest(unittest.TestCase):
         tb.switchBackOrFrontCamera('front') #Force set camera to front
         for i in range(500):
             self._captureAndCheckPicCount('single',2)
-
+        tb.switchBackOrFrontCamera('back')
     #case 12
     def testCaptureHdrImage500timesBackCamera(self):
         '''
@@ -298,6 +300,7 @@ class CameraTest(unittest.TestCase):
         tb.switchBackOrFrontCamera('front')
         for i in range(500):
             self._takeVideoAndCheckCount(30,2)
+        tb.switchBackOrFrontCamera('back')
 
     # Test case 18
     def testCapturePerectshotImage200TimesBackCamera(self):
@@ -367,7 +370,7 @@ class CameraTest(unittest.TestCase):
         tb.switchBackOrFrontCamera('back')
     #step 3
         for i in range(500):
-            self._checkCapturedPic()
+            self._PanoramaCapturePic()
             time.sleep(1)
 
 
@@ -414,7 +417,7 @@ class CameraTest(unittest.TestCase):
 
     #step 1
         sm.switchcamera('burstfast')
-        sm.setCameraSetting('burstfast',2,2)
+        sm.setCameraSetting('burst',2,2)
         d.expect('burst.png') 
         assert bool(ad.cmd('cat',PATH + PICTURE_SIZE_KEY).find('StandardScreen')+1)
     #step 2 
@@ -423,7 +426,8 @@ class CameraTest(unittest.TestCase):
         for i in range(200):
             self._checkCapturedPic()
             time.sleep(1)
-
+############################################################################################################
+##############################################################################################################
     def _confirmSettingMode(self,sub_mode,option):
         if sub_mode == 'location':
             result = ad.cmd('cat','/data/data/com.intel.camera22/shared_prefs/com.intel.camera22_preferences_0.xml | grep '+ sub_mode)
@@ -455,7 +459,7 @@ class CameraTest(unittest.TestCase):
 
     def _takeVideoAndCheckCount(self,recordtime,delaytime,capturetimes=0):
         beforeNo = ad.cmd('ls','/sdcard/DCIM/100ANDRO') #Get count before capturing
-        tb.takeVideo(recordtime,capturetimes)
+        tb.takeVideo(recordtime)
         time.sleep(delaytime) #Sleep a few seconds for file saving
         afterNo = ad.cmd('ls','/sdcard/DCIM/100ANDRO') #Get count after taking picture
         if beforeNo != afterNo - capturetimes - 1: #If the count does not raise up after capturing, case failed
