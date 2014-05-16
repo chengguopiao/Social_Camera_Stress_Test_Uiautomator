@@ -1,15 +1,15 @@
 [tests]
-script.stress.CameraTest.testSwitchMode50Times = 1
-script.stress.CameraTest.testLaunchCamera50Times = 1
-script.stress.CameraTest.testSwitchBackFrontCameraInSingleMode30Times = 1
-script.stress.CameraTest.testChangeFlashMode100Times = 1
-script.stress.CameraTest.testChangeSceneMode100Times = 1
-script.stress.CameraTest.testChangeExposureMode100Times = 1
-script.stress.CameraTest.testChangePictureSizeMode100Times = 1
-script.stress.CameraTest.testChangeVideoSizeMode100Times = 1
-script.stress.CameraTest.testEnterGalleryFromGalleryPreviewThumbnail100times = 1
-script.stress.CameraTest.testCaptureSingleImage500timesBackCamera = 1
-script.stress.CameraTest.testCaptureSingleImage500timesFrontCamera = 1
+#script.stress.CameraTest.testSwitchMode50Times = 1
+#script.stress.CameraTest.testLaunchCamera50Times = 1
+#script.stress.CameraTest.testSwitchBackFrontCameraInSingleMode30Times = 1
+#script.stress.CameraTest.testChangeFlashMode100Times = 1
+#script.stress.CameraTest.testChangeSceneMode100Times = 1
+#script.stress.CameraTest.testChangeExposureMode100Times = 1
+#script.stress.CameraTest.testChangePictureSizeMode100Times = 1
+#script.stress.CameraTest.testChangeVideoSizeMode100Times = 1
+#script.stress.CameraTest.testEnterGalleryFromGalleryPreviewThumbnail100times = 1
+#script.stress.CameraTest.testCaptureSingleImage500timesBackCamera = 1
+#script.stress.CameraTest.testCaptureSingleImage500timesFrontCamera = 1
 script.stress.CameraTest.testCaptureHdrImage500timesBackCamera = 1
 script.stress.CameraTest.testCaptureSmileImage500timesBackCamera = 1
 script.stress.CameraTest.testRecord1080PVideo500times = 1
