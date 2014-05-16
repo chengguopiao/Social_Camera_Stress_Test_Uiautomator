@@ -312,7 +312,6 @@ class CameraTest(unittest.TestCase):
         """
     #step 1
         sm.switchcamera('perfectshot')
-        d.expect('perfectshot.png')
     #step 2 
         for i in range(200):
             self._checkCapturedPic()
@@ -329,7 +328,6 @@ class CameraTest(unittest.TestCase):
         """
     #step 1
         sm.switchcamera('panorama')
-        d.expect('panorama.png')
     #step 2
         for i in range(200):
             self._PanoramaCapturePic()
