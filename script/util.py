@@ -279,6 +279,7 @@ class TouchButton():
             d(resourceId = CPTUREBUTTON_RESOURCEID).click.wait()
             time.sleep(2)
             d(resourceId = CPTUREBUTTON_RESOURCEID).click.wait()
+            time.sleep(2)
         # capture single image by press 2s
         def _longclickcapture():
             commands.getoutput(DRAWUP_CAPTUREBUTTON + '2000')
@@ -301,6 +302,7 @@ class TouchButton():
         #Stop record video
         d(resourceId = CPTUREBUTTON_RESOURCEID).click.wait() 
         return True
+        time.sleep(2)
 
     def switchBackOrFrontCamera(self,status):
         #Dictionary
