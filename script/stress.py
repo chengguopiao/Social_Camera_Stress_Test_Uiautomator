@@ -80,9 +80,9 @@ class CameraTest(unittest.TestCase):
     def setUp(self):
         super(CameraTest,self).setUp()
         #Delete all image/video files captured before
-        ad.cmd('rm','/sdcard/DCIM/*')
+        ad.cmd('rm','/sdcard/DCIM/100ANDRO/*')
         #Refresh media after delete files
-        ad.cmd('refresh','/sdcard/DCIM/*')
+        ad.cmd('refresh','/sdcard/DCIM/100ANDRO/*')
         #Launch social camera
         self._launchCamera()
 
