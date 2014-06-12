@@ -84,6 +84,7 @@ class CameraTest(unittest.TestCase):
         #Refresh media after delete files
         ad.cmd('refresh','/sdcard/DCIM/100ANDRO/*')
         #Launch social camera
+        time.sleep(10000)
         self._launchCamera()
 
     def tearDown(self):
