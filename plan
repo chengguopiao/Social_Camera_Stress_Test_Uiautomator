@@ -14,9 +14,9 @@
 #script.stress.CameraTest.testCaptureSmileImage500timesBackCamera = 1
 #script.stress.CameraTest.testRecord1080PVideo500times = 1
 #script.stress.CameraTest.testRecordVideo500timesFrontCamera = 1
-script.stress.CameraTest.testCapturePerectshotImage200TimesBackCamera = 1
-script.stress.CameraTest.testCapturePanoramaImage200TimesBackCamera = 1
-script.stress.CameraTest.testCaptureSingleImage8M500TimesBackCamera = 1
+#script.stress.CameraTest.testCapturePerectshotImage200TimesBackCamera = 1
+#script.stress.CameraTest.testCapturePanoramaImage200TimesBackCamera = 1
+#script.stress.CameraTest.testCaptureSingleImage8M500TimesBackCamera = 1
 script.stress.CameraTest.testcaseCaptureSmileImage8M500TimesBackCamera = 1
 script.stress.CameraTest.testcaseRecord720PVideo500Times = 1
 script.stress.CameraTest.testcaseRecord480PVideo500Times = 1
