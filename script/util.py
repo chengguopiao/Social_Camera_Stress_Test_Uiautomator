@@ -274,6 +274,7 @@ class TouchButton():
         # capture single image
         def _singlecapture():
             d(resourceId = CPTUREBUTTON_RESOURCEID).click.wait()
+            time.sleep(2)
         # capture smile image
         def _smilecapture():
             d(resourceId = CPTUREBUTTON_RESOURCEID).click.wait()
