@@ -415,7 +415,6 @@ class CameraTest(unittest.TestCase):
         sm.setCameraSetting('burst',2,2)
         assert bool(ad.cmd('cat',PATH + PICTURE_SIZE_KEY).find('StandardScreen')+1)
     #step 2 
-        tb.switchBackOrFrontCamera('back')
     #step 3
         for i in range(200):
             self._checkCapturedPic()
