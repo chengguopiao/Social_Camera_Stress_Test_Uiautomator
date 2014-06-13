@@ -19,5 +19,5 @@
 #script.stress.CameraTest.testCaptureSingleImage8M500TimesBackCamera = 1
 #script.stress.CameraTest.testcaseCaptureSmileImage8M500TimesBackCamera = 1
 #script.stress.CameraTest.testcaseRecord720PVideo500Times = 1
-script.stress.CameraTest.testcaseRecord480PVideo500Times = 1
+#script.stress.CameraTest.testcaseRecord480PVideo500Times = 1
 script.stress.CameraTest.testcaseBurstImage8M200Times = 1
