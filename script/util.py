@@ -305,6 +305,7 @@ class TouchButton():
         time.sleep(2)
 
     def switchBackOrFrontCamera(self,status):
+        d(description = FRONTBACKBUTTON_DESCR).click.wait()
         #Dictionary
         camerastatus = {'back': '0','front':'1'}  
         # Get the current camera status
